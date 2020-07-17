@@ -3,10 +3,12 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase                 #-}
 {-# LANGUAGE NoImplicitPrelude          #-}
+{-# LANGUAGE OverloadedLabels           #-}
 {-# LANGUAGE OverloadedStrings          #-}
 
 module Hyper.Types
   ( App
+  , Error
   , GlobalBoard
   , Grid
   , LocalBoard
@@ -18,10 +20,12 @@ module Hyper.Types
   , Spot(..)
   , Three
   , XO(..)
+  , addError
   , initModel
   , initPlaying
   , opponentName
   , runApp
+  , unError
   ) where
 
 import Hyper.Prelude
@@ -47,7 +51,8 @@ data Model
   deriving (Eq, Generic, Show)
 
 initModel :: Model
-initModel = SigningIn . SigningInModel $ "lgastako"
+-- initModel = SigningIn . SigningInModel $ "lgastako"
+initModel = Playing . initPlaying $ "lgastako"
 
 data SigningInModel = SigningInModel
   { name :: Text
@@ -58,6 +63,7 @@ data PlayingModel = PlayingModel
   , opponent    :: Opponent
   , globalBoard :: GlobalBoard
   , turn        :: XO
+  , errors      :: [Error]
   } deriving (Eq, Generic, Show)
 
 initPlaying :: Text -> PlayingModel
@@ -66,7 +72,14 @@ initPlaying n = PlayingModel
   , opponent    = ComputerOpponent (PlayerName "Hal")
   , globalBoard = initGlobalBoard
   , turn        = X
+  , errors      = []
   }
+
+addError :: Text -> PlayingModel -> PlayingModel
+addError e = #errors %~ (Error e:)
+
+newtype Error = Error { unError :: Text }
+  deriving (Eq, Generic, Show)
 
 type GlobalBoard = Grid LocalBoard
 
@@ -132,6 +145,7 @@ instance MonadUnliftIO App where
   {-# INLINE askUnliftIO #-}
   askUnliftIO = do ctx <- askJSM; pure $ UnliftIO $ \(App m) -> runJSM m ctx
 
+instance FromJSON Error
 instance FromJSON Model
 instance FromJSON Opponent
 instance FromJSON PlayingModel
@@ -139,6 +153,7 @@ instance FromJSON SigningInModel
 instance FromJSON Spot
 instance FromJSON XO
 
+instance ToJSON Error
 instance ToJSON Model
 instance ToJSON Opponent
 instance ToJSON PlayingModel
