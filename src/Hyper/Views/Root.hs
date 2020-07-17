@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -9,10 +8,16 @@ import           Hyper.Prelude                      hiding ( div
                                                            , view
                                                            )
 
-import           Hyper.Types
+import           Hyper.Types                               ( Model( Playing
+                                                                  , SigningIn
+                                                                  )
+                                                           )
 import qualified Hyper.Views.Playing   as Playing
 import qualified Hyper.Views.SigningIn as SigningIn
-import           Shpadoinkle
+import           Shpadoinkle                               ( Html
+                                                           , MonadJSM
+                                                           , text
+                                                           )
 import           Shpadoinkle.Html
 
 view :: MonadJSM m => Model -> Html m Model

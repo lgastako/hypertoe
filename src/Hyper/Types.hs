@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveDataTypeable         #-}
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE LambdaCase                 #-}
 {-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE OverloadedStrings          #-}
 
@@ -18,6 +19,7 @@ module Hyper.Types
   , Three
   , initModel
   , initPlaying
+  , opponentName
   , runApp
   ) where
 
@@ -88,7 +90,7 @@ data Spot
 data XO = X | O
   deriving (Data, Eq, Generic, Show)
 
-newtype PlayerName = PlayerName Text
+newtype PlayerName = PlayerName { unPlayerName :: Text }
   deriving (Eq, FromJSON, Generic, Show, ToJSON)
 
 data Opponent
@@ -96,6 +98,18 @@ data Opponent
   | RandomRemoteOpponent PlayerName
   | ComputerOpponent PlayerName
   deriving (Eq, Generic, Show)
+
+opponentName :: Lens' Opponent PlayerName
+opponentName = lens g s
+  where
+    g = \case
+      KnownRemoteOpponent n  -> n
+      RandomRemoteOpponent n -> n
+      ComputerOpponent n     -> n
+
+    s (KnownRemoteOpponent  _) n = KnownRemoteOpponent n
+    s (RandomRemoteOpponent _) n = RandomRemoteOpponent n
+    s (ComputerOpponent     _) n = ComputerOpponent n
 
 data Route = Home
   deriving (Eq, Generic, Show)
