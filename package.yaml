@@ -1,0 +1,73 @@
+name:                hypertoe
+version:             0.1.0.0
+github:              "lgastako/hypertoe"
+license:             BSD3
+author:              "John Evans"
+maintainer:          "lgastako@gmail.com"
+copyright:           "2020 John Evans"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+synopsis:            Ultimate Tic Tac Toe
+category:            Game
+
+description:         README at <https://github.com/lgastako/hypertoe#readme>
+
+ghc-options:
+- -Weverything
+- -Wno-all-missed-specialisations
+- -Wno-missed-specialisations
+- -Wno-missing-deriving-strategies
+- -Wno-missing-exported-signatures
+- -Wno-missing-import-lists
+- -Wno-missing-local-signatures
+- -Wno-monomorphism-restriction
+- -Wno-safe
+- -Wno-unsafe
+
+dependencies:
+- Shpadoinkle
+- Shpadoinkle-html
+- Shpadoinkle-backend-pardiff
+- Shpadoinkle-router
+- aeson
+- base >= 4.7 && < 5
+- exceptions
+- generic-lens
+- jsaddle
+- lens
+- protolude
+- servant
+- unliftio-core
+
+library:
+  source-dirs: src
+
+executables:
+  hypertoe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - hypertoe
+
+# tests:
+#   hypertoe-test:
+#     main:                Driver.hs
+#     source-dirs:         test
+#     ghc-options:
+#     - -threaded
+#     - -rtsopts
+#     - -with-rtsopts=-N
+#     dependencies:
+#     - hypertoe
+#     - hedgehog
+#     - tasty
+#     - tasty-discover
+#     - tasty-hedgehog
+#     - tasty-hspec
