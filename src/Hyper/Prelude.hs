@@ -1,6 +1,9 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 
-module Hyper.Prelude ( module X ) where
+module Hyper.Prelude
+  ( module X
+  , universe
+  ) where
 
 import Control.Lens          as X hiding ( (<.>)
                                          , Strict
@@ -8,6 +11,7 @@ import Control.Lens          as X hiding ( (<.>)
                                          , simple
                                          , to
                                          , uncons
+                                         , universe
                                          , unsnoc
                                          )
 import Data.Aeson            as X        ( FromJSON
@@ -35,3 +39,6 @@ import Protolude             as X hiding ( (<.>)
                                          , unsnoc
                                          )
 
+
+universe :: (Enum a, Bounded a) => [a]
+universe = [minBound..]

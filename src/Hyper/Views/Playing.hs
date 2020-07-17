@@ -26,6 +26,7 @@ view m = div_ $
   , text "             "
   , text $ "Opponent: " <> m ^. #opponent . opponentName . #unPlayerName
   ]
+  ++ maybe [] renderLastMove (m ^. #lastMove)
   ++ map renderError (m ^. #errors) ++
   [ Playing <$> GlobalBoard.view m ]
   where

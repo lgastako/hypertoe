@@ -1,3 +1,4 @@
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE NoImplicitPrelude #-}
@@ -14,9 +15,9 @@ import Shpadoinkle.Html
 
 view :: Applicative m
      => PlayingModel
-     -> ALens' GlobalBoard LocalBoard
+     -> Coords
      -> Html m PlayingModel
-view m grc = table borders [ tbody_ $ map renderRow [_1, _2, _3] ]
+view m co = table borders [ tbody_ $ map renderRow [_1, _2, _3] ]
   where
     renderRow r = tr borders $ map renderCol [_1, _2, _3]
       where
@@ -35,8 +36,28 @@ view m grc = table borders [ tbody_ $ map renderRow [_1, _2, _3] ]
       | otherwise = m'
           & #globalBoard . lensAt pos .~ Closed (m ^. #turn)
           & #turn %~ oppositePlayer
+          & #lastMove ?~ co
 
     spotTaken = "Spot taken.  Please choose an open spot."
+
+    grc = globalToLocalFromCoords co
+
+globalToLocalFromCoords :: Coords -> ALens' GlobalBoard LocalBoard
+globalToLocalFromCoords (Coords (r, c)) = selectO r . selectI c
+  where
+    -- surely there's a way to combine these?
+
+    selectO :: Trey -> Lens' GlobalBoard (Three LocalBoard)
+    selectO = \case
+      One   -> _1
+      Two   -> _2
+      Three -> _3
+
+    selectI :: Trey -> Lens' (Three LocalBoard) LocalBoard
+    selectI = \case
+      One   -> _1
+      Two   -> _2
+      Three -> _3
 
 clearErrors :: PlayingModel -> PlayingModel
 clearErrors = #errors .~ []

@@ -8,6 +8,7 @@
 
 module Hyper.Types
   ( App
+  , Coords( Coords )
   , Error
   , GlobalBoard
   , Grid
@@ -19,6 +20,7 @@ module Hyper.Types
   , SPA
   , Spot(..)
   , Three
+  , Trey(..)
   , XO(..)
   , addError
   , initModel
@@ -54,9 +56,17 @@ initModel :: Model
 -- initModel = SigningIn . SigningInModel $ "lgastako"
 initModel = Playing . initPlaying $ "lgastako"
 
-data SigningInModel = SigningInModel
-  { name :: Text
-  } deriving (Eq, Generic, Show)
+newtype SigningInModel = SigningInModel { name :: Text }
+  deriving (Eq, Generic, Show)
+
+data Trey
+  = One
+  | Two
+  | Three
+  deriving (Bounded, Enum, Eq, Generic, Show)
+
+newtype Coords = Coords (Trey, Trey)
+  deriving (Eq, Generic, Show)
 
 data PlayingModel = PlayingModel
   { player      :: PlayerName
@@ -64,6 +74,7 @@ data PlayingModel = PlayingModel
   , globalBoard :: GlobalBoard
   , turn        :: XO
   , errors      :: [Error]
+  , lastMove    :: Maybe Coords
   } deriving (Eq, Generic, Show)
 
 initPlaying :: Text -> PlayingModel
@@ -73,6 +84,7 @@ initPlaying n = PlayingModel
   , globalBoard = initGlobalBoard
   , turn        = X
   , errors      = []
+  , lastMove    = Nothing
   }
 
 addError :: Text -> PlayingModel -> PlayingModel
@@ -145,18 +157,22 @@ instance MonadUnliftIO App where
   {-# INLINE askUnliftIO #-}
   askUnliftIO = do ctx <- askJSM; pure $ UnliftIO $ \(App m) -> runJSM m ctx
 
+instance FromJSON Coords
 instance FromJSON Error
 instance FromJSON Model
 instance FromJSON Opponent
 instance FromJSON PlayingModel
 instance FromJSON SigningInModel
 instance FromJSON Spot
+instance FromJSON Trey
 instance FromJSON XO
 
+instance ToJSON Coords
 instance ToJSON Error
 instance ToJSON Model
 instance ToJSON Opponent
 instance ToJSON PlayingModel
 instance ToJSON SigningInModel
 instance ToJSON Spot
+instance ToJSON Trey
 instance ToJSON XO
