@@ -17,6 +17,7 @@ module Hyper.Types
   , SPA
   , Spot(..)
   , Three
+  , XO(..)
   , initModel
   , initPlaying
   , opponentName
@@ -56,6 +57,7 @@ data PlayingModel = PlayingModel
   { player      :: PlayerName
   , opponent    :: Opponent
   , globalBoard :: GlobalBoard
+  , turn        :: XO
   } deriving (Eq, Generic, Show)
 
 initPlaying :: Text -> PlayingModel
@@ -63,6 +65,7 @@ initPlaying n = PlayingModel
   { player      = PlayerName n
   , opponent    = ComputerOpponent (PlayerName "Hal")
   , globalBoard = initGlobalBoard
+  , turn        = X
   }
 
 type GlobalBoard = Grid LocalBoard

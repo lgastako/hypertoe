@@ -16,7 +16,7 @@ import           Shpadoinkle                                   ( Html
                                                                )
 import           Shpadoinkle.Html
 
-view :: Functor m => PlayingModel -> Html m Model
+view :: Applicative m => PlayingModel -> Html m Model
 view m = div_
   [ text $ "Player: " <> m ^. #player . #unPlayerName
   , text "             "

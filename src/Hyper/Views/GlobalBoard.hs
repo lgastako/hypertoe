@@ -12,7 +12,7 @@ import qualified Hyper.Views.LocalBoard as LocalBoard
 import           Shpadoinkle                                 ( Html )
 import           Shpadoinkle.Html
 
-view :: PlayingModel -> Html m PlayingModel
+view :: Applicative m => PlayingModel -> Html m PlayingModel
 view m = table borders [ tbody_ $ map renderRow [_1, _2, _3] ]
   where
     renderRow rowLens = tr borders $ map renderCol [_1, _2, _3]
