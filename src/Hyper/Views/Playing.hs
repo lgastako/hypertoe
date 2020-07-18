@@ -29,7 +29,7 @@ view m = div_ $
   ]
   ++ maybe [] renderLastMove (m ^. #lastMove)
   ++ map renderError (m ^. #errors) ++
-  [ Playing <$> GlobalBoard.view m ]
+  [ checkForWinner <$> GlobalBoard.view m ]
   where
     renderError :: Error -> Html m a
     renderError e = div [ ("style", "color: red") ] [ text . unError $ e ]
@@ -37,3 +37,6 @@ view m = div_ $
     renderLastMove :: (Coords, Coords) -> [Html m a]
     renderLastMove cc = pure $
       div [ ("style", "color: blue") ] [ text . ("Last Move: " <>) $ show cc ]
+
+    checkForWinner :: PlayingModel -> Model
+    checkForWinner = Playing -- TODO: check for winner
