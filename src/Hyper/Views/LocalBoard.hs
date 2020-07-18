@@ -46,6 +46,7 @@ view m globalCoords = table tableStyle [ tbody_ $ map renderRow universe ]
     maybeMove :: Coords -> PlayingModel -> PlayingModel
     maybeMove pos m'
       | not (isOpen $ m ^. #globalBoard . spotLens) = addError spotTaken m'
+      | not rightBoardTargeted = addError wrongBoard m'
       | otherwise = m'
           & #globalBoard . spotLens .~ Closed (m ^. #turn)
           & #turn %~ oppositePlayer
@@ -54,7 +55,11 @@ view m globalCoords = table tableStyle [ tbody_ $ map renderRow universe ]
         spotLens :: Lens' GlobalBoard Spot
         spotLens = cloneLens boardRc . cloneLens (localToSpotFromCoords pos)
 
-    spotTaken = "Spot taken.  Please choose an open spot."
+        rightBoardTargeted = null (m ^. #lastMove)
+          || Just globalCoords == fmap snd (m ^. #lastMove)
+
+    spotTaken  = "Spot taken.  Please choose an open spot."
+    wrongBoard = "You must pick a spot on the target board."
 
     backgroundWhenActive
       | Just globalCoords == fmap snd (m ^. #lastMove) =
