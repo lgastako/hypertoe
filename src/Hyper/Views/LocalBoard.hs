@@ -15,10 +15,6 @@ import Hyper.Types
 import Shpadoinkle
 import Shpadoinkle.Html hiding ( head )
 
--- TODO: replace [_1, _2, _3] with `universe` over `Trey` then another thing
--- like globalToLocalFromCoords to get to the lenses...then set the last move
--- to the local move, not the global move
-
 view :: forall m. Applicative m
      => PlayingModel
      -> Coords
