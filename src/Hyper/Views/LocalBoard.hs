@@ -49,7 +49,7 @@ view m globalCoords = table tableStyle [ tbody_ $ map renderRow universe ]
       | otherwise = m'
           & #globalBoard . spotLens .~ Closed (m ^. #turn)
           & #turn %~ oppositePlayer
-          & #lastMove ?~ pos
+          & #lastMove ?~ (globalCoords, pos)
       where
         spotLens :: Lens' GlobalBoard Spot
         spotLens = cloneLens boardRc . cloneLens (localToSpotFromCoords pos)
@@ -57,7 +57,8 @@ view m globalCoords = table tableStyle [ tbody_ $ map renderRow universe ]
     spotTaken = "Spot taken.  Please choose an open spot."
 
     backgroundWhenActive
-      | Just globalCoords == m ^. #lastMove = (<> " background-color: #ADD8E6")
+      | Just globalCoords == fmap snd (m ^. #lastMove) =
+          (<> " background-color: #ADD8E6")
       | otherwise = identity
 
     boardRc :: ALens' GlobalBoard LocalBoard

@@ -74,7 +74,7 @@ data PlayingModel = PlayingModel
   , globalBoard :: GlobalBoard
   , turn        :: XO
   , errors      :: [Error]
-  , lastMove    :: Maybe Coords
+  , lastMove    :: Maybe (Coords, Coords)
   } deriving (Eq, Generic, Show)
 
 initPlaying :: Text -> PlayingModel
