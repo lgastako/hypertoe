@@ -13,7 +13,7 @@ import Hyper.Prelude    hiding ( view )
 import Data.String             ( fromString )
 import Hyper.Types
 import Shpadoinkle
-import Shpadoinkle.Html
+import Shpadoinkle.Html hiding ( head )
 
 -- TODO: replace [_1, _2, _3] with `universe` over `Trey` then another thing
 -- like globalToLocalFromCoords to get to the lenses...then set the last move
@@ -39,14 +39,18 @@ view m globalCoords = table tableStyle [ tbody_ $ map renderRow universe ]
       . cloneLens boardRc
       . cloneLens (localToSpotFromCoords pos)
 
-    tableStyle  = fromRaw $ backgroundWhenActive <<$>> rawBorders
+    tableStyle  = fromRaw $ addBackground <<$>> rawBorders
     borderStyle = fromRaw rawBorders
     rawBorders  = [ ("style", "border: 1px solid red;") ]
 
     maybeMove :: Coords -> PlayingModel -> PlayingModel
     maybeMove pos m'
-      | not (isOpen $ m ^. #globalBoard . spotLens) = addError spotTaken m'
-      | not rightBoardTargeted = addError wrongBoard m'
+      | checkForWinner (m ^. #globalBoard . cloneLens boardRc) /= Open =
+          addError boardClosed m'
+      | not (isOpen $ m ^. #globalBoard . spotLens) =
+          addError spotTaken m'
+      | not rightBoardTargeted =
+          addError wrongBoard m'
       | otherwise = m'
           & #globalBoard . spotLens .~ Closed (m ^. #turn)
           & #turn %~ oppositePlayer
@@ -58,18 +62,42 @@ view m globalCoords = table tableStyle [ tbody_ $ map renderRow universe ]
         rightBoardTargeted = null (m ^. #lastMove)
           || Just globalCoords == fmap snd (m ^. #lastMove)
 
-    spotTaken  = "Spot taken.  Please choose an open spot."
-    wrongBoard = "You must pick a spot on the target board."
+    spotTaken   = "Spot taken.  Please choose an open spot."
+    wrongBoard  = "You must pick a spot on the target board."
+    boardClosed = "This board is closed, please move on an open board."
 
-    backgroundWhenActive
+    winner :: Spot
+    winner = checkForWinner $ m ^. #globalBoard ^# boardRc
+
+    addBackground
+      | winner == Closed X = (<> "background-color: #FF6347;")
+      | winner == Closed O = (<> "background-color: #0000FF;")
       | Just globalCoords == fmap snd (m ^. #lastMove) =
-          (<> " background-color: #ADD8E6")
+          (<> " background-color: #ADD8E6;")
       | otherwise = identity
 
     boardRc :: ALens' GlobalBoard LocalBoard
     boardRc = globalToLocalFromCoords globalCoords
 
     fromRaw = (fmap . fmap) fromString
+
+checkForWinner :: LocalBoard -> Spot
+checkForWinner lb = maybe Open Closed $ chk X <|> chk O
+  where
+    chk :: XO -> Maybe XO
+    chk xo
+      | any (all (== Closed xo)) rows  = Just xo
+      | any (all (== Closed xo)) cols  = Just xo
+      | any (all (== Closed xo)) diags = Just xo
+      | otherwise                      = Nothing
+
+    rows  = toListOf each <$> toListOf each lb
+    cols  = transpose . map reverse $ rows
+    diags = [diag rows, diag cols]
+
+    diag = zipWith f [0..]
+      where
+        f n xs = fromMaybe (panic "FIND A BETTER WAY") . head . drop n $ xs
 
 -- surely there's a way to combine these?
 globalToLocalFromCoords :: Coords -> ALens' GlobalBoard LocalBoard
@@ -123,3 +151,39 @@ oppositePlayer :: XO -> XO
 oppositePlayer = \case
   X -> O
   O -> X
+
+
+_deleteMe :: LocalBoard
+_deleteMe =
+  ( (Open,     Open,     Open)
+  , (Closed X, Closed O, Closed X)
+  , (Open,     Closed X, Closed O)
+  )
+
+_deleteMe2 :: LocalBoard
+_deleteMe2 =
+  ( (Closed X, Open,     Open)
+  , (Closed X, Closed O, Closed X)
+  , (Closed X, Closed X, Closed O)
+  )
+
+_deleteMe3 :: LocalBoard
+_deleteMe3 =
+  ( (Closed X, Open,     Open)
+  , (Closed O, Closed O, Closed O)
+  , (Closed X, Closed X, Closed O)
+  )
+
+_deleteMe4 :: LocalBoard
+_deleteMe4 =
+  ( (Closed X, Open,     Open)
+  , (Closed O, Closed X, Closed O)
+  , (Closed X, Open,     Closed X)
+  )
+
+_deleteMe5 :: LocalBoard
+_deleteMe5 =
+  ( (Open,     Open,     Closed X)
+  , (Closed O, Closed X, Closed O)
+  , (Closed X, Open,     Open)
+  )
