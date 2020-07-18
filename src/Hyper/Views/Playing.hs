@@ -8,7 +8,8 @@ import           Hyper.Prelude                          hiding ( div
                                                                , view
                                                                )
 
-import           Hyper.Types                                   ( Error
+import           Hyper.Types                                   ( Coords( Coords )
+                                                               , Error
                                                                , Model( Playing )
                                                                , PlayingModel
                                                                , opponentName
@@ -32,3 +33,7 @@ view m = div_ $
   where
     renderError :: Error -> Html m a
     renderError e = div [ ("style", "color: red") ] [ text . unError $ e ]
+
+    renderLastMove :: Coords -> [Html m a]
+    renderLastMove (Coords (r, c)) = pure $
+      div [ ("style", "color: blue") ] [ text . ("Last Move: " <>) $ show (r, c) ]
