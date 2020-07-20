@@ -20,6 +20,7 @@ import Shpadoinkle.Html.Utils              ( getBody
                                            , setTitle
                                            )
 import Shpadoinkle.Router
+import System.IO.Unsafe                    ( unsafePerformIO )
 
 app :: JSM ()
 app = do
@@ -28,7 +29,7 @@ app = do
     runApp
     runParDiff
     mkInitialState
-    Root.view
+    (Root.view . traceShow')
     getBody
     listenForRouteChanges
     routes
@@ -59,3 +60,6 @@ app = do
 --   -> (layout :>> r)
 --   -> jsm ()
 --   	-- defined in ‘shpadoinkle.router’
+
+traceShow' :: Show a => a -> a
+traceShow' x = unsafePerformIO $ putText ("trace: " <> show x) >> pure x
