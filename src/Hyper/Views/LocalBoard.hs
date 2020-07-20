@@ -8,9 +8,8 @@
 
 module Hyper.Views.LocalBoard ( view ) where
 
-import Hyper.Prelude    hiding ( view )
+import Hyper.Prelude    hiding ( div )
 
-import Data.String             ( fromString )
 import Hyper.Types
 import Shpadoinkle
 import Shpadoinkle.Html hiding ( head )
@@ -22,11 +21,11 @@ view :: forall m. Applicative m
 view m globalCoords = table tableStyle [ tbody_ $ map renderRow universe ]
   where
     renderRow :: Trey -> Html m PlayingModel
-    renderRow r = tr borderStyle $ map renderCol universe
+    renderRow r = tr_ $ map renderCol universe
       where
         renderCol c = td
-          (borderStyle ++ [ onClick . maybeMove localCoords . clearErrors $ m ])
-          [ text . render $ spotAt localCoords ]
+          [ onClick . maybeMove localCoords . clearErrors $ m ]
+          [ div "cell" [ text . render $ spotAt localCoords ] ]
           where
             localCoords = Coords (r, c)
 
@@ -35,9 +34,8 @@ view m globalCoords = table tableStyle [ tbody_ $ map renderRow universe ]
       . cloneLens boardRc
       . cloneLens (localToSpotFromCoords pos)
 
-    tableStyle  = fromRaw $ addBackground <<$>> rawBorders
-    borderStyle = fromRaw rawBorders
-    rawBorders  = [ ("style", "border: 1px solid red;") ]
+    tableStyle = [class' cls]
+    cls = "local " <> fromMaybe "" backgroundClass
 
     maybeMove :: Coords -> PlayingModel -> PlayingModel
     maybeMove pos m'
@@ -77,17 +75,15 @@ view m globalCoords = table tableStyle [ tbody_ $ map renderRow universe ]
     winner :: Spot
     winner = checkForWinner $ m ^. #globalBoard ^# boardRc
 
-    addBackground
-      | winner == Closed X      = (<> "background-color: #FF6347;")
-      | winner == Closed O      = (<> "background-color: #0000FF;")
-      | thisBoardIsProperTarget = (<> " background-color: #ADD8E6;")
-      | targetIsAlreadyWon      = (<> " background-color: #ADD8E6;")
-      | otherwise               = identity
+    backgroundClass
+      | winner == Closed X      = Just "board-closed-x"
+      | winner == Closed O      = Just "board-closed-y"
+      | thisBoardIsProperTarget = Just "board-open"
+      | targetIsAlreadyWon      = Just "board-open"
+      | otherwise               = Nothing
 
     boardRc :: ALens' GlobalBoard LocalBoard
     boardRc = globalToLocalFromCoords globalCoords
-
-    fromRaw = (fmap . fmap) fromString
 
 checkForWinner :: LocalBoard -> Spot
 checkForWinner lb = maybe Open Closed $ chk X <|> chk O
@@ -152,7 +148,7 @@ isOpen = \case
 
 render :: Spot -> Text
 render = \case
-  Open     -> "_"
+  Open     -> ""
   Closed v -> show v
 
 oppositePlayer :: XO -> XO

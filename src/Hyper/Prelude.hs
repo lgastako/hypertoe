@@ -2,10 +2,12 @@
 
 module Hyper.Prelude
   ( module X
+  , cs
   , universe
   ) where
 
-import Control.Lens          as X hiding ( (<.>)
+import Control.Lens          as X hiding ( (#)
+                                         , (<.>)
                                          , Strict
                                          , from
                                          , simple
@@ -13,6 +15,7 @@ import Control.Lens          as X hiding ( (<.>)
                                          , uncons
                                          , universe
                                          , unsnoc
+                                         , view
                                          )
 import Data.Aeson            as X        ( FromJSON
                                          , ToJSON
@@ -39,6 +42,8 @@ import Protolude             as X hiding ( (<.>)
                                          , unsnoc
                                          )
 
+cs :: StringConv a b => a -> b
+cs = strConv Lenient
 
 universe :: (Enum a, Bounded a) => [a]
 universe = [minBound..]

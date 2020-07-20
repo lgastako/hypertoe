@@ -34,6 +34,7 @@ dependencies:
 - Shpadoinkle-router
 - aeson
 - base >= 4.7 && < 5
+- clay
 - exceptions
 - generic-lens
 - jsaddle

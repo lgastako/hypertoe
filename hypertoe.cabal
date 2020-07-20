@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f69619ef537afbda2a83e489ca2135b12683636503bc0055f4159dcb90952c60
+-- hash: 337c70544f2ac7ff337e234f538b0a8e47ead0255dbe853165989481502795b4
 
 name:           hypertoe
 version:        0.1.0.0
@@ -32,6 +32,7 @@ library
       Hyper.App
       Hyper.Prelude
       Hyper.Types
+      Hyper.Views.CSS
       Hyper.Views.GlobalBoard
       Hyper.Views.LocalBoard
       Hyper.Views.Playing
@@ -49,6 +50,7 @@ library
     , Shpadoinkle-router
     , aeson
     , base >=4.7 && <5
+    , clay
     , exceptions
     , generic-lens
     , jsaddle
@@ -72,6 +74,7 @@ executable hypertoe
     , Shpadoinkle-router
     , aeson
     , base >=4.7 && <5
+    , clay
     , exceptions
     , generic-lens
     , hypertoe

@@ -4,18 +4,10 @@
 
 module Hyper.Views.SigningIn ( view ) where
 
-import Hyper.Prelude    hiding ( view )
+import Hyper.Prelude
 
-import Hyper.Types             ( Model( Playing
-                                      , SigningIn
-                                      )
-                               , SigningInModel
-                               , initPlaying
-                               )
-import Shpadoinkle             ( Html
-                               , MonadJSM
-                               , text
-                               )
+import Hyper.Types
+import Shpadoinkle
 import Shpadoinkle.Html
 
 view :: MonadJSM m => SigningInModel -> Html m Model
