@@ -55,14 +55,20 @@ view m globalCoords = table tableStyle [ tbody_ $ map renderRow universe ]
         spotLens :: Lens' GlobalBoard Spot
         spotLens = cloneLens boardRc . cloneLens (localToSpotFromCoords pos)
 
-        rightBoardTargeted = case m ^. #lastMove of
-          Nothing -> True
-          Just lm
-            | targetIsAlreadyWon lm -> True
-            | otherwise -> Just globalCoords == fmap snd (m ^. #lastMove)
+        rightBoardTargeted
+            | noTarget           = True
+            | targetIsAlreadyWon = True
+            | otherwise          = thisBoardIsProperTarget
 
-        targetIsAlreadyWon lm = Open /= checkForWinner
-          (m ^. #globalBoard . cloneLens (globalToLocalFromCoords $ snd lm))
+    noTarget = null $ m ^. #lastMove
+
+    targetIsAlreadyWon :: Bool
+    targetIsAlreadyWon = case snd <$> m ^. #lastMove of
+      Nothing -> False
+      Just lc -> Open /= (checkForWinner $
+        (m ^. #globalBoard . cloneLens (globalToLocalFromCoords lc)))
+
+    thisBoardIsProperTarget = Just globalCoords == (snd <$> m ^. #lastMove)
 
     spotTaken   = "Spot taken.  Please choose an open spot."
     wrongBoard  = "You must pick a spot on the target board."
@@ -72,11 +78,11 @@ view m globalCoords = table tableStyle [ tbody_ $ map renderRow universe ]
     winner = checkForWinner $ m ^. #globalBoard ^# boardRc
 
     addBackground
-      | winner == Closed X = (<> "background-color: #FF6347;")
-      | winner == Closed O = (<> "background-color: #0000FF;")
-      | Just globalCoords == fmap snd (m ^. #lastMove) =
-          (<> " background-color: #ADD8E6;")
-      | otherwise = identity
+      | winner == Closed X      = (<> "background-color: #FF6347;")
+      | winner == Closed O      = (<> "background-color: #0000FF;")
+      | thisBoardIsProperTarget = (<> " background-color: #ADD8E6;")
+      | targetIsAlreadyWon      = (<> " background-color: #ADD8E6;")
+      | otherwise               = identity
 
     boardRc :: ALens' GlobalBoard LocalBoard
     boardRc = globalToLocalFromCoords globalCoords
