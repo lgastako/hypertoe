@@ -12,7 +12,7 @@ import           Shpadoinkle
 import           Shpadoinkle.Html
 
 view :: Applicative m => PlayingModel -> Html m Model
-view m = div_ $
+view m = div "wrapper" $
   [ b_ [ "Player: " ]
   , span_ [ text $ m ^. #player . #unPlayerName ]
   , text "             "

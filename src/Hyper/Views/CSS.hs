@@ -20,13 +20,11 @@ styleSheet = do
 
   table # ".global" ? do
     let sz = 3
-    border solid (px sz) black
     tr ? border solid (px sz) black
     td ? border solid (px sz) black
 
   table # ".local" ? do
     let sz = 1
-    border solid (px sz) red
     tr    ? border solid (px sz) red
     td    ? border solid (px sz) red
 
@@ -35,3 +33,7 @@ styleSheet = do
     height    (rem sz)
     width     (rem sz)
     textAlign center
+
+  ".wrapper" ? do
+    width (rem 16)
+    "margin" -: "auto"
