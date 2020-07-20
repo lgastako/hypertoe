@@ -55,8 +55,14 @@ view m globalCoords = table tableStyle [ tbody_ $ map renderRow universe ]
         spotLens :: Lens' GlobalBoard Spot
         spotLens = cloneLens boardRc . cloneLens (localToSpotFromCoords pos)
 
-        rightBoardTargeted = null (m ^. #lastMove)
-          || Just globalCoords == fmap snd (m ^. #lastMove)
+        rightBoardTargeted = case m ^. #lastMove of
+          Nothing -> True
+          Just lm
+            | targetIsAlreadyWon lm -> True
+            | otherwise -> Just globalCoords == fmap snd (m ^. #lastMove)
+
+        targetIsAlreadyWon lm = Open /= checkForWinner
+          (m ^. #globalBoard . cloneLens (globalToLocalFromCoords $ snd lm))
 
     spotTaken   = "Spot taken.  Please choose an open spot."
     wrongBoard  = "You must pick a spot on the target board."

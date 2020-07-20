@@ -49,17 +49,5 @@ app = do
     routes :: Route
     routes = panic "Main.routes"
 
--- fullpagespa ::
---   (hasrouter layout, backend b m a, eq a) =>
---   (m ~> jsm)
---   -> (ghc.conc.sync.tvar a -> b m ~> m)
---   -> (r -> m a)
---   -> (a -> html (b m) a)
---   -> b m rawnode
---   -> (r -> a -> m a)
---   -> (layout :>> r)
---   -> jsm ()
---   	-- defined in ‘shpadoinkle.router’
-
 traceShow' :: Show a => a -> a
 traceShow' x = unsafePerformIO $ putText ("trace: " <> show x) >> pure x
