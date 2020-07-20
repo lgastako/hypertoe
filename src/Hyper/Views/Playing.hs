@@ -13,19 +13,24 @@ import           Shpadoinkle.Html
 
 view :: Applicative m => PlayingModel -> Html m Model
 view m = div "wrapper" $
-  [ b_ [ "Player: " ]
-  , span_ [ text $ m ^. #player . #unPlayerName ]
-  , text "             "
-  , b_ [ "Opponent: " ]
-  , span_ [ text $ m ^. #opponent . opponentName . #unPlayerName ]
+  [ div "playerLabel"
+    [ b_ [ "Player: " ]
+    , span_ [ text $ m ^. #player . #unPlayerName ]
+    ]
+  , div "opponentLabel"
+    [ b_ [ "Opponent: " ]
+    , span_ [ text $ m ^. #opponent . opponentName . #unPlayerName ]
+    ]
   , br'_
   , br'_
-  , text $ show (m ^. #turn) <> "'s Turn to Move."
-  , br'_
+  , div "whoseTurn"
+    [ b_ [ text $ show (m ^. #turn) ]
+    , text "'s Turn"
+    ]
   , br'_
   ]
   ++ [ checkForWinner <$> GlobalBoard.view m ]
-  ++ map renderError (m ^. #errors)
+  ++ if shouldRenderLastMove then map renderError (m ^. #errors) else []
   ++ maybe [] renderLastMove (m ^. #lastMove)
   where
     renderError :: Error -> Html m a
@@ -37,3 +42,5 @@ view m = div "wrapper" $
 
     checkForWinner :: PlayingModel -> Model
     checkForWinner = Playing -- TODO: check for winner
+
+    shouldRenderLastMove = True

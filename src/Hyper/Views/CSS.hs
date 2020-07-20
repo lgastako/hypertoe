@@ -3,7 +3,9 @@
 
 module Hyper.Views.CSS ( view ) where
 
-import Hyper.Prelude    hiding ( rem )
+import Hyper.Prelude    hiding ( rem
+                               , zoom
+                               )
 
 import Clay
 import Shpadoinkle
@@ -14,6 +16,9 @@ view = style_ [ text (cs . renderWith pretty [] $ styleSheet) ]
 
 styleSheet :: Css
 styleSheet = do
+  html ? do
+    "zoom" -: "150%"
+
   ".board-closed-x" ? backgroundColor "#FF6347"
   ".board-closed-y" ? backgroundColor "#0000FF"
   ".board-open"     ? backgroundColor "#ADD8E6"
@@ -37,3 +42,14 @@ styleSheet = do
   ".wrapper" ? do
     width (rem 16)
     "margin" -: "auto"
+
+  ".whoseTurn" ? do
+    width (pct 100)
+    textAlign center
+    "margin" -: "auto"
+
+  ".playerLabel" ? do
+    "float" -: "left"
+
+  ".opponentLabel" ? do
+    "float" -: "right"
