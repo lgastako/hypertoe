@@ -17,20 +17,16 @@ module Hyper.Fns
   , playAgain
   ) where
 
-import Prelude                ( (!!) )
+import Prelude       ( (!!) )
 import Hyper.Prelude
 
-import Hyper.Debug   as Debug
 import Hyper.Types
 
 addError :: Text -> PlayingModel -> PlayingModel
 addError e = #errors %~ (Error e:)
 
 checkForGlobalWinner :: PlayingModel -> Model
-checkForGlobalWinner m = case Debug.log "PROXY WINNER"
-  . checkForWinner
-  . Debug.log "PROXY BOARD"
-  $ proxyBoard of
+checkForGlobalWinner m = case checkForWinner proxyBoard of
   Left Tie          -> transitionToWinner m (Left Tie)
   Right Open        -> Playing m
   Right (Closed xo) -> transitionToWinner m (Right xo)
