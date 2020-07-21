@@ -62,8 +62,8 @@ initGlobalBoard :: GlobalBoard
 initGlobalBoard = pureGrid (pureGrid Open)
 
 initModel :: Model
-initModel = SigningIn . SigningInModel $ "lgastako"
--- initModel = Playing . initPlaying $ "lgastako"
+-- initModel = SigningIn . SigningInModel $ "lgastako"
+initModel = Playing . initPlaying $ "lgastako"
 
 initPlaying :: Text -> PlayingModel
 initPlaying n = PlayingModel
@@ -80,24 +80,20 @@ isOpen = \case
   Open -> True
   _    -> False
 
--- TODO Surely there's biplatey solution
+-- TODO Can we write a polymorphic biplate to make this just something like:
+--   gb & polyplate %~ f
 makeProxyBoard :: GlobalBoard -> LocalBoard
-makeProxyBoard gb =
-  ( ( f $ gb ^. _1 . _1
-    , f $ gb ^. _1 . _2
-    , f $ gb ^. _1 . _3
-    )
-  , ( f $ gb ^. _2 . _1
-    , f $ gb ^. _2 . _2
-    , f $ gb ^. _2 . _3
-    )
-  , ( f $ gb ^. _3 . _1
-    , f $ gb ^. _3 . _2
-    , f $ gb ^. _3 . _3
-    )
-  )
+makeProxyBoard gb = gb
+  & _1 . _1 %~ f
+  & _1 . _2 %~ f
+  & _1 . _3 %~ f
+  & _2 . _1 %~ f
+  & _2 . _2 %~ f
+  & _2 . _3 %~ f
+  & _3 . _1 %~ f
+  & _3 . _2 %~ f
+  & _3 . _3 %~ f
   where
-    f :: LocalBoard -> Spot
     f = either (const Open) identity . checkForWinner
 
 opponentName :: Lens' Opponent PlayerName
