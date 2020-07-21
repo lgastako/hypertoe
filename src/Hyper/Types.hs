@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable         #-}
 {-# LANGUAGE DeriveGeneric              #-}
+{-# LANGUAGE DuplicateRecordFields      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase                 #-}
 {-# LANGUAGE NoImplicitPrelude          #-}
@@ -10,15 +11,18 @@ module Hyper.Types
   ( App
   , Coords( Coords )
   , Error
+  , GameOverModel(..)
   , GlobalBoard
   , Grid
   , LocalBoard
   , Model(..)
+  , PlayerName(..)
   , PlayingModel(..)
   , Route(..)
   , SigningInModel(..)
   , SPA
   , Spot(..)
+  , Tie(..)
   , Three
   , Trey(..)
   , XO(..)
@@ -50,6 +54,7 @@ type SPA = Raw
 data Model
   = SigningIn SigningInModel
   | Playing PlayingModel
+  | GameOver GameOverModel
   deriving (Eq, Generic, Show)
 
 initModel :: Model
@@ -120,6 +125,15 @@ tempSetup =
     . ((_2 . _2) .~ Closed O)
     . ((_3 . _2) .~ Closed O)
   )
+
+data Tie = Tie
+  deriving (Eq, Generic, Show)
+
+data GameOverModel = GameOverModel
+  { player_   :: PlayerName
+  , opponent_ :: Opponent
+  , winner    :: Either Tie XO
+  } deriving (Eq, Generic, Show)
 
 addError :: Text -> PlayingModel -> PlayingModel
 addError e = #errors %~ (Error e:)
@@ -193,20 +207,24 @@ instance MonadUnliftIO App where
 
 instance FromJSON Coords
 instance FromJSON Error
+instance FromJSON GameOverModel
 instance FromJSON Model
 instance FromJSON Opponent
 instance FromJSON PlayingModel
 instance FromJSON SigningInModel
 instance FromJSON Spot
+instance FromJSON Tie
 instance FromJSON Trey
 instance FromJSON XO
 
 instance ToJSON Coords
 instance ToJSON Error
+instance ToJSON GameOverModel
 instance ToJSON Model
 instance ToJSON Opponent
 instance ToJSON PlayingModel
 instance ToJSON SigningInModel
 instance ToJSON Spot
+instance ToJSON Tie
 instance ToJSON Trey
 instance ToJSON XO

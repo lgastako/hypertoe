@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedLabels  #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -6,6 +7,7 @@ module Hyper.Views.Playing ( view ) where
 
 import           Hyper.Prelude                          hiding ( div )
 
+import           Hyper.Fns
 import           Hyper.Types
 import qualified Hyper.Views.GlobalBoard as GlobalBoard
 import           Shpadoinkle
@@ -29,7 +31,7 @@ view m = div "wrapper" $
     ]
   , br'_
   ]
-  ++ [ checkForWinner <$> GlobalBoard.view m ]
+  ++ [ checkForGlobalWinner <$> GlobalBoard.view m ]
   ++ if shouldRenderLastMove then map renderError (m ^. #errors) else []
   ++ maybe [] renderLastMove (m ^. #lastMove)
   where
@@ -39,8 +41,5 @@ view m = div "wrapper" $
     renderLastMove :: (Coords, Coords) -> [Html m a]
     renderLastMove cc = pure $
       div [ ("style", "color: blue") ] [ text . ("Last Move: " <>) $ show cc ]
-
-    checkForWinner :: PlayingModel -> Model
-    checkForWinner = Playing -- TODO: check for winner
 
     shouldRenderLastMove = True

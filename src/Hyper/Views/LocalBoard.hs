@@ -6,12 +6,14 @@
 {-# LANGUAGE RankNTypes          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
+
 module Hyper.Views.LocalBoard ( view ) where
 
 import Hyper.Prelude    hiding ( div )
 
 import Data.String             ( fromString )
-import Hyper.Types
+import Hyper.Fns
+import Hyper.Types      hiding ( winner )
 import Shpadoinkle
 import Shpadoinkle.Html hiding ( head )
 
@@ -23,8 +25,9 @@ view m globalCoords = div "board" $
   markMay ++ [ table tableStyle [ tbody_ $ map renderRow universe ] ]
   where
     markMay = case winner of
-       Open      -> []
-       Closed xo -> [ winnersMark xo ]
+       Left Tie          -> [ winnersMark (Left Tie) ]
+       Right Open        -> []
+       Right (Closed xo) -> [ winnersMark (Right xo) ]
 
     renderRow :: Trey -> Html m PlayingModel
     renderRow r = tr_ $ map renderCol universe
@@ -45,7 +48,7 @@ view m globalCoords = div "board" $
 
     maybeMove :: Coords -> PlayingModel -> PlayingModel
     maybeMove pos m'
-      | winner /= Open                              = addError boardClosed m'
+      | winner /= Right Open                        = addError boardClosed m'
       | not (isOpen $ m ^. #globalBoard . spotLens) = addError spotTaken m'
       | not rightBoardTargeted                      = addError wrongBoard m'
       | otherwise = m'
@@ -66,7 +69,7 @@ view m globalCoords = div "board" $
     targetIsAlreadyWon :: Bool
     targetIsAlreadyWon = case snd <$> m ^. #lastMove of
       Nothing -> False
-      Just lc -> Open /= (checkForWinner $
+      Just lc -> Right Open /= (checkForWinner $
         (m ^. #globalBoard . cloneLens (globalToLocalFromCoords lc)))
 
     thisBoardIsProperTarget = Just globalCoords == (snd <$> m ^. #lastMove)
@@ -75,40 +78,27 @@ view m globalCoords = div "board" $
     wrongBoard  = "You must pick a spot on the target board."
     boardClosed = "This board is closed, please move on an open board."
 
-    winner :: Spot
+    winner :: Either Tie Spot
     winner = checkForWinner $ m ^. #globalBoard ^# boardRc
 
     backgroundClass
-      | winner == Closed X      = Just "board-closed-x"
-      | winner == Closed O      = Just "board-closed-y"
-      | thisBoardIsProperTarget = Just "board-open"
-      | targetIsAlreadyWon      = Just "board-open"
-      | otherwise               = Nothing
+      | winner == Right (Closed X) = Just "board-closed-x"
+      | winner == Right (Closed O) = Just "board-closed-y"
+      | winner == Left Tie         = Just "board-closed-tie"  -- TODO handle css
+      | thisBoardIsProperTarget    = Just "board-open"
+      | targetIsAlreadyWon         = Just "board-open"
+      | otherwise                  = Nothing
 
     boardRc :: ALens' GlobalBoard LocalBoard
     boardRc = globalToLocalFromCoords globalCoords
 
-winnersMark :: XO -> Html m a
-winnersMark xo = div (fromString $ "winner winner-" <> show xo)
-  [ text (show xo) ]
-
-checkForWinner :: LocalBoard -> Spot
-checkForWinner lb = maybe Open Closed $ chk X <|> chk O
+winnersMark :: Either Tie XO -> Html m a
+winnersMark result = div (fromString $ "winner winner-" ++ letter)
+  [ text (cs letter) ]
   where
-    chk :: XO -> Maybe XO
-    chk xo
-      | any (all (== Closed xo)) rows  = Just xo
-      | any (all (== Closed xo)) cols  = Just xo
-      | any (all (== Closed xo)) diags = Just xo
-      | otherwise                      = Nothing
-
-    rows  = toListOf each <$> toListOf each lb
-    cols  = transpose . map reverse $ rows
-    diags = [diag rows, diag cols]
-
-    diag = zipWith f [0..]
-      where
-        f n xs = fromMaybe (panic "FIND A BETTER WAY") . head . drop n $ xs
+    letter = case result of
+      Left Tie -> "C"
+      Right xo -> show xo
 
 -- surely there's a way to combine these?
 globalToLocalFromCoords :: Coords -> ALens' GlobalBoard LocalBoard
@@ -145,20 +135,7 @@ localToSpotFromCoords (Coords (r, c)) = selectO r . selectI c
       Two   -> _2
       Three -> _3
 
-clearErrors :: PlayingModel -> PlayingModel
-clearErrors = #errors .~ []
-
-isOpen :: Spot -> Bool
-isOpen = \case
-  Open -> True
-  _    -> False
-
 render :: Spot -> Text
 render = \case
   Open     -> ""
   Closed v -> show v
-
-oppositePlayer :: XO -> XO
-oppositePlayer = \case
-  X -> O
-  O -> X
