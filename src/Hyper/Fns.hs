@@ -17,10 +17,11 @@ module Hyper.Fns
   , playAgain
   ) where
 
+import Prelude                ( (!!) )
 import Hyper.Prelude
 
+import Hyper.Debug   as Debug
 import Hyper.Types
-import Hyper.Debug as Debug
 
 addError :: Text -> PlayingModel -> PlayingModel
 addError e = #errors %~ (Error e:)
@@ -31,7 +32,7 @@ checkForGlobalWinner m = case Debug.log "PROXY WINNER"
   . Debug.log "PROXY BOARD"
   $ proxyBoard of
   Left Tie          -> transitionToWinner m (Left Tie)
-  Right (Open)      -> Playing m
+  Right Open        -> Playing m
   Right (Closed xo) -> transitionToWinner m (Right xo)
   where
     proxyBoard :: LocalBoard
@@ -54,9 +55,7 @@ checkForWinner lb = case maybe Open Closed $ chk X <|> chk O of
     cols  = transpose . map reverse $ rows
     diags = [diag rows, diag cols]
 
-    diag = zipWith f [0..]
-      where
-        f n xs = fromMaybe (panic "FIND A BETTER WAY") . head . drop n $ xs
+    diag = zipWith (flip (!!)) [0..]
 
     allSpots = lb ^.. biplate
 
@@ -67,8 +66,8 @@ initGlobalBoard :: GlobalBoard
 initGlobalBoard = pureGrid (pureGrid Open)
 
 initModel :: Model
--- initModel = SigningIn . SigningInModel $ "lgastako"
-initModel = Playing . initPlaying $ "lgastako"
+initModel = SigningIn . SigningInModel $ "lgastako"
+-- initModel = Playing . initPlaying $ "lgastako"
 
 initPlaying :: Text -> PlayingModel
 initPlaying n = PlayingModel

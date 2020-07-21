@@ -69,8 +69,8 @@ view m globalCoords = div "board" $
     targetIsAlreadyWon :: Bool
     targetIsAlreadyWon = case snd <$> m ^. #lastMove of
       Nothing -> False
-      Just lc -> Right Open /= (checkForWinner $
-        (m ^. #globalBoard . cloneLens (globalToLocalFromCoords lc)))
+      Just lc -> Right Open /= checkForWinner
+        (m ^. #globalBoard . cloneLens (globalToLocalFromCoords lc))
 
     thisBoardIsProperTarget = Just globalCoords == (snd <$> m ^. #lastMove)
 

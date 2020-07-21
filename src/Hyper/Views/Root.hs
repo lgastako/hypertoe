@@ -1,6 +1,5 @@
 {-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedStrings #-}
 
 module Hyper.Views.Root ( view ) where
 
@@ -20,5 +19,5 @@ view m' = div_
   where
     actual = \case
       SigningIn m -> SigningIn.view m
-      Playing   m -> Playing.view m
-      GameOver  m -> GameOver.view m
+      Playing   m -> Playing.view   m
+      GameOver  m -> GameOver.view  m
