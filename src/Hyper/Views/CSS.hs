@@ -3,7 +3,8 @@
 
 module Hyper.Views.CSS ( view ) where
 
-import Hyper.Prelude    hiding ( rem
+import Hyper.Prelude    hiding ( position
+                               , rem
                                , zoom
                                )
 
@@ -35,8 +36,8 @@ styleSheet = do
 
   ".cell" ? do
     let sz = 1
-    height    (rem sz)
-    width     (rem sz)
+    height    $ rem sz
+    width     $ rem sz
     textAlign center
 
   ".wrapper" ? do
@@ -44,7 +45,7 @@ styleSheet = do
     "margin" -: "auto"
 
   ".whoseTurn" ? do
-    width (pct 100)
+    width     $ pct 100
     textAlign center
     "margin" -: "auto"
 
@@ -53,3 +54,17 @@ styleSheet = do
 
   ".opponentLabel" ? do
     "float" -: "right"
+
+  ".board" ? position relative
+
+  ".winner" ? do
+    position  absolute
+    textAlign center
+    margin    _t _r _b _l
+    color "#ffffff"
+    "zoom" -: "500%"
+      where
+        _t = rem (-0.15)
+        _l = rem 0.06
+        _r = rem 0
+        _b = rem 0

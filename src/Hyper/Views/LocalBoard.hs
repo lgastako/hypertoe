@@ -10,6 +10,7 @@ module Hyper.Views.LocalBoard ( view ) where
 
 import Hyper.Prelude    hiding ( div )
 
+import Data.String             ( fromString )
 import Hyper.Types
 import Shpadoinkle
 import Shpadoinkle.Html hiding ( head )
@@ -18,8 +19,13 @@ view :: forall m. Applicative m
      => PlayingModel
      -> Coords
      -> Html m PlayingModel
-view m globalCoords = table tableStyle [ tbody_ $ map renderRow universe ]
+view m globalCoords = div "board" $
+  markMay ++ [ table tableStyle [ tbody_ $ map renderRow universe ] ]
   where
+    markMay = case winner of
+       Open      -> []
+       Closed xo -> [ winnersMark xo ]
+
     renderRow :: Trey -> Html m PlayingModel
     renderRow r = tr_ $ map renderCol universe
       where
@@ -39,12 +45,9 @@ view m globalCoords = table tableStyle [ tbody_ $ map renderRow universe ]
 
     maybeMove :: Coords -> PlayingModel -> PlayingModel
     maybeMove pos m'
-      | checkForWinner (m ^. #globalBoard . cloneLens boardRc) /= Open =
-          addError boardClosed m'
-      | not (isOpen $ m ^. #globalBoard . spotLens) =
-          addError spotTaken m'
-      | not rightBoardTargeted =
-          addError wrongBoard m'
+      | winner /= Open                              = addError boardClosed m'
+      | not (isOpen $ m ^. #globalBoard . spotLens) = addError spotTaken m'
+      | not rightBoardTargeted                      = addError wrongBoard m'
       | otherwise = m'
           & #globalBoard . spotLens .~ Closed (m ^. #turn)
           & #turn %~ oppositePlayer
@@ -84,6 +87,10 @@ view m globalCoords = table tableStyle [ tbody_ $ map renderRow universe ]
 
     boardRc :: ALens' GlobalBoard LocalBoard
     boardRc = globalToLocalFromCoords globalCoords
+
+winnersMark :: XO -> Html m a
+winnersMark xo = div (fromString $ "winner winner-" <> show xo)
+  [ text (show xo) ]
 
 checkForWinner :: LocalBoard -> Spot
 checkForWinner lb = maybe Open Closed $ chk X <|> chk O
@@ -155,39 +162,3 @@ oppositePlayer :: XO -> XO
 oppositePlayer = \case
   X -> O
   O -> X
-
-
-_deleteMe :: LocalBoard
-_deleteMe =
-  ( (Open,     Open,     Open)
-  , (Closed X, Closed O, Closed X)
-  , (Open,     Closed X, Closed O)
-  )
-
-_deleteMe2 :: LocalBoard
-_deleteMe2 =
-  ( (Closed X, Open,     Open)
-  , (Closed X, Closed O, Closed X)
-  , (Closed X, Closed X, Closed O)
-  )
-
-_deleteMe3 :: LocalBoard
-_deleteMe3 =
-  ( (Closed X, Open,     Open)
-  , (Closed O, Closed O, Closed O)
-  , (Closed X, Closed X, Closed O)
-  )
-
-_deleteMe4 :: LocalBoard
-_deleteMe4 =
-  ( (Closed X, Open,     Open)
-  , (Closed O, Closed X, Closed O)
-  , (Closed X, Open,     Closed X)
-  )
-
-_deleteMe5 :: LocalBoard
-_deleteMe5 =
-  ( (Open,     Open,     Closed X)
-  , (Closed O, Closed X, Closed O)
-  , (Closed X, Open,     Open)
-  )

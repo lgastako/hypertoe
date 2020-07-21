@@ -82,10 +82,44 @@ initPlaying n = PlayingModel
   { player      = PlayerName n
   , opponent    = ComputerOpponent (PlayerName "Hal")
   , globalBoard = initGlobalBoard
+    -- TODO remove me
+                  & tempSetup
   , turn        = X
   , errors      = []
   , lastMove    = Nothing
   }
+
+tempSetup :: GlobalBoard -> GlobalBoard
+tempSetup =
+  ( (_2 . _2) %~ ((_1 . _2) .~ Closed X)
+    . ((_2 . _2) .~ Closed X)
+    . ((_3 . _2) .~ Closed X)
+  )
+  .
+  ( (_2 . _3) %~ ((_1 . _2) .~ Closed X)
+    . ((_2 . _2) .~ Closed X)
+    . ((_3 . _2) .~ Closed X)
+  )
+  .
+  ( (_2 . _1) %~ ((_1 . _2) .~ Closed X)
+    . ((_2 . _2) .~ Closed X)
+    . ((_3 . _2) .~ Closed X)
+  )
+  .
+  ( (_1 . _1) %~ ((_1 . _2) .~ Closed O)
+    . ((_2 . _2) .~ Closed O)
+    . ((_3 . _2) .~ Closed O)
+  )
+  .
+  ( (_1 . _2) %~ ((_1 . _2) .~ Closed O)
+    . ((_2 . _2) .~ Closed O)
+    . ((_3 . _2) .~ Closed O)
+  )
+  .
+  ( (_1 . _3) %~ ((_1 . _2) .~ Closed O)
+    . ((_2 . _2) .~ Closed O)
+    . ((_3 . _2) .~ Closed O)
+  )
 
 addError :: Text -> PlayingModel -> PlayingModel
 addError e = #errors %~ (Error e:)
