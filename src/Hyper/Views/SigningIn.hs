@@ -6,6 +6,7 @@ module Hyper.Views.SigningIn ( view ) where
 
 import Hyper.Prelude
 
+import Hyper.Fns
 import Hyper.Types
 import Shpadoinkle
 import Shpadoinkle.Html

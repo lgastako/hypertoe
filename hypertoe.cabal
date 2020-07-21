@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 798c7ffbd7d25f7f201f27a30a9b71f379a58c60d99dd4bb576f5233c20209ae
+-- hash: 4cf054c527675d746558367741d465d16cc2199c438c7297271a0a9dfc4c3452
 
 name:           hypertoe
 version:        0.1.0.0
@@ -38,6 +38,7 @@ library
       Hyper.Views.GameOver
       Hyper.Views.GlobalBoard
       Hyper.Views.LocalBoard
+      Hyper.Views.PlayerBar
       Hyper.Views.Playing
       Hyper.Views.Root
       Hyper.Views.SigningIn
@@ -45,7 +46,7 @@ library
       Paths_hypertoe
   hs-source-dirs:
       src
-  ghc-options: -Weverything -Wno-all-missed-specialisations -Wno-missed-specialisations -Wno-missing-deriving-strategies -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-safe -Wno-unsafe
+  ghc-options: -Weverything -Wno-all-missed-specialisations -Wno-missed-specialisations -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-safe -Wno-unsafe
   build-depends:
       Shpadoinkle
     , Shpadoinkle-backend-pardiff
@@ -69,7 +70,7 @@ executable hypertoe
       Paths_hypertoe
   hs-source-dirs:
       app
-  ghc-options: -Weverything -Wno-all-missed-specialisations -Wno-missed-specialisations -Wno-missing-deriving-strategies -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-safe -Wno-unsafe -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -Weverything -Wno-all-missed-specialisations -Wno-missed-specialisations -Wno-missing-exported-signatures -Wno-missing-import-lists -Wno-missing-local-signatures -Wno-monomorphism-restriction -Wno-safe -Wno-unsafe -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       Shpadoinkle
     , Shpadoinkle-backend-pardiff

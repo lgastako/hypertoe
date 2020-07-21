@@ -7,12 +7,8 @@ module Hyper.App ( app ) where
 import Hyper.Prelude
 
 import Hyper.Debug                 as Debug
-import Hyper.Types                          ( Model
-                                            , Route
-                                            , SPA
-                                            , initModel
-                                            , runApp
-                                            )
+import Hyper.Fns
+import Hyper.Types
 import Hyper.Views.Root            as Root
 import Language.Javascript.JSaddle          ( JSM )
 import Shpadoinkle                          ( MonadJSM )

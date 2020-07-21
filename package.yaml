@@ -19,7 +19,7 @@ ghc-options:
 - -Weverything
 - -Wno-all-missed-specialisations
 - -Wno-missed-specialisations
-- -Wno-missing-deriving-strategies
+#- -Wno-missing-deriving-strategies
 - -Wno-missing-exported-signatures
 - -Wno-missing-import-lists
 - -Wno-missing-local-signatures

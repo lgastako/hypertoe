@@ -10,12 +10,13 @@
 module Hyper.Types
   ( App
   , Coords( Coords )
-  , Error
+  , Error(..)
   , GameOverModel(..)
   , GlobalBoard
   , Grid
   , LocalBoard
   , Model(..)
+  , Opponent(..)
   , PlayerName(..)
   , PlayingModel(..)
   , Route(..)
@@ -26,12 +27,7 @@ module Hyper.Types
   , Three
   , Trey(..)
   , XO(..)
-  , addError
-  , initModel
-  , initPlaying
-  , opponentName
   , runApp
-  , unError
   ) where
 
 import Hyper.Prelude
@@ -57,10 +53,6 @@ data Model
   | GameOver GameOverModel
   deriving (Eq, Generic, Show)
 
-initModel :: Model
--- initModel = SigningIn . SigningInModel $ "lgastako"
-initModel = Playing . initPlaying $ "lgastako"
-
 newtype SigningInModel = SigningInModel { name :: Text }
   deriving (Eq, Generic, Show)
 
@@ -82,61 +74,15 @@ data PlayingModel = PlayingModel
   , lastMove    :: Maybe (Coords, Coords)
   } deriving (Eq, Generic, Show)
 
-initPlaying :: Text -> PlayingModel
-initPlaying n = PlayingModel
-  { player      = PlayerName n
-  , opponent    = ComputerOpponent (PlayerName "Hal")
-  , globalBoard = initGlobalBoard
-    -- TODO remove me
-                  & tempSetup
-  , turn        = X
-  , errors      = []
-  , lastMove    = Nothing
-  }
-
-tempSetup :: GlobalBoard -> GlobalBoard
-tempSetup =
-  ( (_2 . _2) %~ ((_1 . _2) .~ Closed X)
-    . ((_2 . _2) .~ Closed X)
-    . ((_3 . _2) .~ Closed X)
-  )
-  .
-  ( (_2 . _3) %~ ((_1 . _2) .~ Closed X)
-    . ((_2 . _2) .~ Closed X)
-    . ((_3 . _2) .~ Closed X)
-  )
-  .
-  ( (_2 . _1) %~ ((_1 . _2) .~ Closed X)
-    . ((_2 . _2) .~ Closed X)
-    . ((_3 . _2) .~ Closed X)
-  )
-  .
-  ( (_1 . _1) %~ ((_1 . _2) .~ Closed O)
-    . ((_2 . _2) .~ Closed O)
-    . ((_3 . _2) .~ Closed O)
-  )
-  .
-  ( (_1 . _2) %~ ((_1 . _2) .~ Closed O)
-    . ((_2 . _2) .~ Closed O)
-    . ((_3 . _2) .~ Closed O)
-  )
-  .
-  ( (_1 . _3) %~ ((_1 . _2) .~ Closed O)
-    . ((_2 . _2) .~ Closed O)
-    . ((_3 . _2) .~ Closed O)
-  )
-
 data Tie = Tie
   deriving (Eq, Generic, Show)
 
 data GameOverModel = GameOverModel
-  { player_   :: PlayerName
-  , opponent_ :: Opponent
-  , winner    :: Either Tie XO
+  { player_      :: PlayerName
+  , opponent_    :: Opponent
+  , winner       :: Either Tie XO
+  , globalBoard_ :: GlobalBoard
   } deriving (Eq, Generic, Show)
-
-addError :: Text -> PlayingModel -> PlayingModel
-addError e = #errors %~ (Error e:)
 
 newtype Error = Error { unError :: Text }
   deriving (Eq, Generic, Show)
@@ -148,15 +94,6 @@ type LocalBoard = Grid Spot
 type Grid a = Three (Three a)
 
 type Three a = (a, a, a)
-
-initGlobalBoard :: GlobalBoard
-initGlobalBoard = pureGrid (pureGrid Open)
-
-pureGrid :: a -> Grid a
-pureGrid = pureThree . pureThree
-
-pureThree :: a -> Three a
-pureThree x = (x, x, x)
 
 data Spot
   = Open
@@ -174,18 +111,6 @@ data Opponent
   | RandomRemoteOpponent PlayerName
   | ComputerOpponent PlayerName
   deriving (Eq, Generic, Show)
-
-opponentName :: Lens' Opponent PlayerName
-opponentName = lens g s
-  where
-    g = \case
-      KnownRemoteOpponent n  -> n
-      RandomRemoteOpponent n -> n
-      ComputerOpponent n     -> n
-
-    s (KnownRemoteOpponent  _) n = KnownRemoteOpponent n
-    s (RandomRemoteOpponent _) n = RandomRemoteOpponent n
-    s (ComputerOpponent     _) n = ComputerOpponent n
 
 data Route = Home
   deriving (Eq, Generic, Show)
